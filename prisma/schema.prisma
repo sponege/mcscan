@@ -1,0 +1,63 @@
+// A database schema for Minecraft server scanning
+// Made by Jordan Perry
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Server {
+  ip           Int      @id
+  scanned      Boolean  @default(false)
+  last_scanned DateTime @default(now())
+
+  server_snapshots ServerSnapshot[]
+  player_history   PlayerHistory[]
+
+  @@map("servers")
+}
+
+model ServerSnapshot {
+  id               Int      @id @default(autoincrement())
+  ip               Int
+  timestamp        DateTime @default(now())
+  description      String   @default("")
+  online           Boolean  @default(false)
+  version_name     String   @default("")
+  version_protocol Int      @default(-1)
+  player_count     Int      @default(-1)
+  player_max       Int      @default(-1)
+  is_forge         Boolean  @default(false)
+  is_modded        Boolean  @default(false)
+  json             String   @default("")
+
+  server Server @relation(fields: [ip], references: [ip])
+
+  @@map("server_snapshots")
+}
+
+model Player {
+  id       Int    @id @default(autoincrement())
+  uuid     String @unique
+  username String
+
+  player_history PlayerHistory[]
+
+  @@map("players")
+}
+
+model PlayerHistory {
+  history_id Int      @id @default(autoincrement())
+  player_id  Int
+  ip         Int
+  timestamp  DateTime @default(now())
+
+  player Player @relation(fields: [player_id], references: [id])
+  server Server @relation(fields: [ip], references: [ip])
+
+  @@map("player_history")
+}

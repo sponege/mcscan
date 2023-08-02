@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    /* Module & Target */
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+
+    /* Resolve */
+    "resolveJsonModule": true,
+
+    /* Emit */
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true
+  },
+  "include": ["src/**/*", "typing/**/*"]
+}
