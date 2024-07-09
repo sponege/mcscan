@@ -36,7 +36,7 @@ async function main() {
 
   console.log(massInsert.length + " IPs to insert");
 
-  prisma.server
+  prisma.minecraftServer
     .createMany({
       data: massInsert,
       skipDuplicates: true,
@@ -44,20 +44,6 @@ async function main() {
     .then(() => {
       console.log("Done");
     });
-
-  /*
-  for (let ip of ips) {
-    if (typeof ip != "number") continue;
-    try {
-      await prisma.server.create({
-        data: { ip: ip },
-      });
-      console.log("Imported " + int2ip(ip));
-    } catch (e) {
-      console.log(`Could not import ${int2ip(ip)}: ${e}`);
-    }
-  }
-	*/
 }
 
 main();

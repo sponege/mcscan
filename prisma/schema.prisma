@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Server {
+model MinecraftServer {
   ip           Int      @id
   scanned      Boolean  @default(false)
   last_scanned DateTime @default(now())
@@ -35,7 +35,7 @@ model ServerSnapshot {
   is_modded        Boolean  @default(false)
   json             String   @default("")
 
-  server Server @relation(fields: [ip], references: [ip])
+  server MinecraftServer @relation(fields: [ip], references: [ip])
 
   @@map("server_snapshots")
 }
@@ -57,7 +57,7 @@ model PlayerHistory {
   timestamp  DateTime @default(now())
 
   player Player @relation(fields: [player_id], references: [id])
-  server Server @relation(fields: [ip], references: [ip])
+  server MinecraftServer @relation(fields: [ip], references: [ip])
 
   @@map("player_history")
 }

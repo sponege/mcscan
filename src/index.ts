@@ -7,11 +7,11 @@
 // If a server responds to a ping, server information is logged to the ServerHistory model
 // Player information is also added to the database, along with their history
 
-import mc from "minecraft-protocol";
-import { PrismaClient } from "@prisma/client";
+import mc, { Server } from "minecraft-protocol";
+import { MinecraftServer, Player, PrismaClient, ServerSnapshot } from "@prisma/client";
 import { int2ip, promiseWithTimeout, sleep } from "./util";
 
-async function scanner(scanner_number: number) {
+async function scanner(scanner_number: number, server: MinecraftServer) {
   // Represents a scanner, you can launch multiple scanners to run asynchronously with each other
   // Promise never resolves! An infinite loop is used to keep the scanner running
   const prisma = new PrismaClient();
@@ -23,23 +23,6 @@ async function scanner(scanner_number: number) {
     try {
       // wait a bit before scanning, so we don't mess with other scanners
       // await sleep(1000);
-
-      // scan the server that hasn't been scanned for a while (sort by last_scanned and find oldest)
-      // this is to ensure that we are scanning the most outdated servers first
-      let server = await prisma.server.findFirst({
-        orderBy: [{ last_scanned: "asc" }],
-      });
-
-      if (server == null) {
-        console.log("No servers to scan");
-        break;
-      }
-
-      // mark the server as scanned
-      await prisma.server.update({
-        where: { ip: server.ip },
-        data: { scanned: true, last_scanned: new Date() },
-      });
 
       let address = int2ip(server.ip);
       let response: any;
@@ -157,6 +140,8 @@ async function scanner(scanner_number: number) {
       } catch {}
     } catch {}
   }
+
+  return scanner_number;
 }
 
 async function main() {
@@ -169,7 +154,53 @@ async function main() {
 	*/
 
   // one scanner for now :)
-  scanner(69420);
+  let scanners: Promise<number>[] = [];
+  const prisma = new PrismaClient();
+
+  const numScanners = 5; // 5 scanners
+
+  for (let i = 1; i <= numScanners; i++) {
+    // scan the server that hasn't been scanned for a while (sort by last_scanned and find oldest)
+    // this is to ensure that we are scanning the most outdated servers first
+
+    let server = await prisma.minecraftServer.findFirst({
+      orderBy: [{ last_scanned: "asc" }],
+    });
+
+    if (server == null) {
+      console.log("No servers to scan");
+      break;
+    }
+
+    // mark the server as scanned
+    await prisma.minecraftServer.update({
+      where: { ip: server.ip },
+      data: { scanned: true, last_scanned: new Date() },
+    });
+
+    scanners.push(scanner(i, server));
+  }
+
+  while (true) {
+    let finishedScannerNumber = await Promise.any(scanners);
+
+    let server = await prisma.minecraftServer.findFirst({
+      orderBy: [{ last_scanned: "asc" }],
+    });
+
+    if (server == null) {
+      console.log("No servers to scan");
+      break;
+    }
+
+    // mark the server as scanned
+    await prisma.minecraftServer.update({
+      where: { ip: server.ip },
+      data: { scanned: true, last_scanned: new Date() },
+    });
+
+    scanners.push(scanner(finishedScannerNumber, server));
+  }
 }
 
 main();

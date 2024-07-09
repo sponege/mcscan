@@ -9,8 +9,7 @@ export function ip2int(ip: string) {
         (acc: number, current: string) => (acc << 8) + parseInt(current),
         0
       );
-    if (num == NaN) return null;
-    else return num;
+    return num;
   } catch (e) {
     return null;
   }

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     /* Module & Target */
+    "target": "ES2021",
     "moduleResolution": "Node",
     "esModuleInterop": true,
 
