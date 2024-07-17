@@ -1,7 +1,7 @@
 // Imports IPs from a file into the database
 // Assumes IPs are listening on port 25565 but have not yet been scanned
 // IPs are read from stdin, one per line
-import { ip2int } from "./util";
+import { ip2int } from "./util.js";
 import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 function readLines() {
@@ -13,7 +13,8 @@ async function main() {
     let ips = lines.map((line) => {
         if (line.length == 0)
             return null;
-        let ip = ip2int(line.split(" ")[3]); // ex: open tcp 25565 45.43.233.225 1671854414
+        //let ip = ip2int(line.split(" ")[3]); // ex: open tcp 25565 45.43.233.225 1671854414
+        let ip = ip2int(line); // ex: open tcp 25565 45.43.233.225 1671854414
         return ip;
     });
     console.log(ips);
