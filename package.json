@@ -5,6 +5,8 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^4.10.1",
+		"discord.js": "^14.15.3",
+		"dotenv": "^16.4.5",
 		"minecraft-protocol": "^1.40.3",
 		"node-fetch": "^3.3.2",
 		"typescript": "^5.5.3"

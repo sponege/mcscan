@@ -215,6 +215,7 @@ async function scanner(scanner_number: number, server: MinecraftServer) {
         {
           name: "Modded",
           value: is_modded == "y" ? "Yes" : "No (hopefully)",
+          inline: true,
         },
       ];
       if (disconnect_reason)

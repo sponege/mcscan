@@ -2,7 +2,8 @@
 // Made by Jordan Perry
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -34,6 +35,8 @@ model ServerSnapshot {
   whitelist        String   @default("u") @db.Char(1)
   is_modded        String   @default("u") @db.Char(1)
   favicon          String   @default("") @db.VarChar(6)
+
+  @@fulltext([description])
 
   server MinecraftServer @relation(fields: [ip], references: [ip])
 
