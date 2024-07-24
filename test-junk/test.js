@@ -64,9 +64,10 @@ client.on("connect", () => {
 
   client.on("packet", (data, packetMeta, buffer, fullBuffer) => {
     console.log(packetMeta, data);
-    if (packetMeta.name == "map_chunk") {
-      console.log(data);
-    }
+    if (packetMeta.name == 'success') {process.exit()} //whoopie
+    if (packetMeta.name == 'disconnect') {process.exit()
+
+    } // dang its whitelist
   });
 });
 

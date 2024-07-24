@@ -31,9 +31,9 @@ model ServerSnapshot {
   version_protocol Int      @default(-1)
   player_count     Int      @default(-1)
   player_max       Int      @default(-1)
-  is_forge         Boolean  @default(false)
-  is_modded        Boolean  @default(false)
-  json             String   @default("")
+  whitelist        String   @default("u") @db.Char(1)
+  is_modded        String   @default("u") @db.Char(1)
+  favicon          String   @default("") @db.VarChar(6)
 
   server MinecraftServer @relation(fields: [ip], references: [ip])
 
@@ -56,7 +56,7 @@ model PlayerHistory {
   ip         Int
   timestamp  DateTime @default(now())
 
-  player Player @relation(fields: [player_id], references: [id])
+  player Player          @relation(fields: [player_id], references: [id])
   server MinecraftServer @relation(fields: [ip], references: [ip])
 
   @@map("player_history")
