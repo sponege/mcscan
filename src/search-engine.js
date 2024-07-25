@@ -71,7 +71,7 @@ let commands = [
       });
 
       console.log(servers);
-      let embeds = generate_embeds(servers);
+      let embeds = server_embeds(servers);
       if (embeds.length)
         await interaction.reply({
           embeds,
@@ -81,6 +81,105 @@ let commands = [
           embeds: [
             {
               title: `No servers found from that query :(`,
+              description: "Try widening your search a little!",
+              color: 0xee5f5f,
+            },
+          ],
+        });
+    },
+  },
+  {
+    data: {
+      name: "player",
+      description: "Searches for Minecraft players.",
+      integration_types: [1],
+      contexts: [0, 1, 2],
+      options: [
+        {
+          name: "username",
+          description: "Search for something here!",
+          type: 3, // string
+          required: true,
+        },
+      ],
+    },
+    async execute(interaction) {
+      let search = {};
+      for (let field of interaction.options._hoistedOptions)
+        search[field.name] = field.value;
+      console.log(search);
+      let players = await prisma.player.findMany({
+        where: { username: { search: search.username } },
+        take: 10,
+      });
+
+      console.log(players);
+      let embeds = player_embeds(players);
+      if (embeds.length)
+        await interaction.reply({
+          embeds,
+        });
+      else
+        await interaction.reply({
+          embeds: [
+            {
+              title: `No users found from that query :(`,
+              description: "Try widening your search a little!",
+              color: 0xee5f5f,
+            },
+          ],
+        });
+    },
+  },
+  {
+    data: {
+      name: "history",
+      description: "Given a player ID, shows the player's server history.",
+      integration_types: [1],
+      contexts: [0, 1, 2],
+      options: [
+        {
+          name: "id",
+          description: "The ID of the user (not UUID!)",
+          type: 4, // integer
+          required: true,
+        },
+      ],
+    },
+    async execute(interaction) {
+      let search = {};
+      for (let field of interaction.options._hoistedOptions)
+        search[field.name] = field.value;
+      console.log(search);
+      let history = await prisma.playerHistory.findMany({
+        where: { player_id: search.id },
+        take: 10,
+      });
+
+      let servers = [];
+
+      for (let server of history) {
+        console.log(server);
+        servers = servers.concat(
+          await prisma.serverSnapshot.findMany({
+            where: { ip: server.ip },
+            take: 10,
+          })
+        );
+      }
+
+      console.log(servers);
+      let embeds = server_embeds(servers);
+	  embeds = embeds.slice(0, 10);
+      if (embeds.length)
+        await interaction.reply({
+          embeds,
+        });
+      else
+        await interaction.reply({
+          embeds: [
+            {
+              title: `No users found from that query :(`,
               description: "Try widening your search a little!",
               color: 0xee5f5f,
             },
@@ -164,7 +263,7 @@ const rest = new REST().setToken(process.env.token);
   }
 })();
 
-function generate_embeds(servers) {
+function server_embeds(servers) {
   let embeds = [];
 
   for (let server of servers) {
@@ -222,6 +321,37 @@ function generate_embeds(servers) {
       embed.thumbnail = {
         url: `https://files.catbox.moe/${server.favicon}.png`,
       };
+    embeds.push(embed);
+  }
+
+  return embeds;
+}
+
+function player_embeds(players) {
+  let embeds = [];
+
+  for (let player of players) {
+    let embed = {
+      title: player.username,
+      fields: [
+        { name: "User ID", value: player.id, inline: true },
+        { name: "UUID", value: player.uuid, inline: true },
+      ],
+    };
+    embeds.push(embed);
+  }
+
+  return embeds;
+}
+
+function history_embeds(history) {
+  let embeds = [];
+
+  for (let server of history) {
+    console.log(history);
+    let embed = {
+      title: int2ip(server.ip),
+    };
     embeds.push(embed);
   }
 

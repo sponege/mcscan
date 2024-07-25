@@ -36,10 +36,9 @@ model ServerSnapshot {
   is_modded        String   @default("u") @db.Char(1)
   favicon          String   @default("") @db.VarChar(6)
 
-  @@fulltext([description])
-
   server MinecraftServer @relation(fields: [ip], references: [ip])
 
+  @@fulltext([description])
   @@map("server_snapshots")
 }
 
@@ -50,6 +49,7 @@ model Player {
 
   player_history PlayerHistory[]
 
+  @@fulltext([username])
   @@map("players")
 }
 
